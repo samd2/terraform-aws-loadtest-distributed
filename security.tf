@@ -22,6 +22,14 @@ resource "aws_security_group" "loadtest" {
   }
 
   ingress {
+    description = "HTTP"
+    from_port   = 8080
+    to_port     = 8080
+    protocol    = "TCP"
+    cidr_blocks = var.web_cidr_ingress_blocks
+  }
+
+  ingress {
     description = "HTTPS"
     from_port   = 443
     to_port     = 443
@@ -89,7 +97,7 @@ resource "tls_private_key" "loadtest" {
 }
 
 locals {
-  export_pem_cmd = var.ssh_export_pem == true ? "echo '${tls_private_key.loadtest.private_key_pem}' > ${var.name}-loadtest-keypair.pem" : "echo 'key pair export disabled'"
+  export_pem_cmd = var.ssh_export_pem == true ? "echo '${tls_private_key.loadtest.private_key_pem}' > ${var.name}-loadtest-keypair.pem; chmod 600 ${var.name}-loadtest-keypair.pem" : "echo 'key pair export disabled'"
 }
 
 resource "aws_key_pair" "loadtest" {
